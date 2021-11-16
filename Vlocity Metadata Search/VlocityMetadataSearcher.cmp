@@ -1,0 +1,120 @@
+<aura:component controller="VlocityMetadataSearcherController" implements="force:appHostable,flexipage:availableForAllPageTypes" > 
+    <!-- attributes -->
+    <ltng:require styles="{!$Resource.vlocity_cmt__UITemplateDesignerCss}"/> 
+    <aura:attribute name="txtContact" type="String" description="Contact Name to be searched" /> 
+	<aura:attribute name="rows" type="object[]" description="Values returned from Apex" />     
+    <aura:attribute name="columns" type="List"/>
+	<aura:attribute name="options" type="List" />
+    <aura:attribute name="ElementOptions" type="List" />
+    <aura:attribute name="showSubOptions" type="Boolean" />
+    <aura:attribute name="selectedValue" type="String" default="Cards"/>
+    <aura:attribute name="selectedValue2" type="String" default="Todos"/>
+    <aura:attribute name="showFiledNameText" type="Boolean" />
+    <aura:attribute name="txtFiledName" type="String" description="Field Name to be searched"/> 
+    <aura:attribute name="sObjectTemplateName" type="SObject" default="{}" />
+    
+    
+    <aura:attribute name="condition" type="Boolean" />
+    <aura:attribute name="hasError" type="Boolean" />
+    <aura:attribute name="msjError" type="String" />
+    
+    <!-- handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.loadOptions}" />
+    <aura:handler name="init" value="{!this}" action="{!c.loadOptionsOS}" />
+ 	<aura:handler name="change" value="{!v.selectedValue}" action="{!c.changeSelected}"/>
+   	
+    <div class="slds-grid slds-wrap slds-card slds-m-bottom--small slds-p-around--medium" style="background: #FFF;">
+    	<div class="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2 slds-p-bottom--small">
+            <lightning:select name="mySelect" label="Select a component:" aura:id="mySelect" value="{!v.selectedValue}">
+                 <aura:iteration items="{!v.options}" var="item">
+                    <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                </aura:iteration>
+            </lightning:select>
+        </div>
+        
+        <div class="slds-size--1-of-1 slds-medium-size--1-of-2 slds-large-size--1-of-2 slds-p-bottom--small slds-p-left--medium">
+            <aura:if isTrue="{!v.showSubOptions}">
+            <lightning:select name="mySelectecElement" label="Select a element:" aura:id="mySelectecElement" value="{!v.selectedValue2}">
+                 <aura:iteration items="{!v.ElementOptions}" var="item2">
+                    <option text="{!item2.label}" value="{!item2.value}" selected="{!item2.selected2}"/>
+                </aura:iteration>
+            </lightning:select>
+            </aura:if> 
+        </div>
+               
+        <div class="slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1 slds-p-bottom--small">
+            <div class="slds">
+                <div class="slds-grid slds-wrap">
+                    <aura:if isTrue="{!v.showFiledNameText}">
+                        <div class="slds-col slds-size--1-of-1">     
+                         	<div class="slds-col slds-size--1-of-1">     
+                            	<div class="lds-form--horizontal">
+                                    <aura:if isTrue="{!v.selectedValue == 'Templates'}">
+                                    	<label class="slds-form-element__label" for="text-input-01">Text to search</label>
+                                    <aura:set attribute="else">
+                                        <label class="slds-form-element__label" for="text-input-01">Object Name</label>
+                                    </aura:set>
+                                    </aura:if>
+                                    <div class="slds-form-element__control"> 
+                                      <ui:inputText aura:id="txtContactName" value="{!v.txtContact}" class="slds-input" placeholder="Text to search" />
+                                      <!--<lightning:input type="text" id="txtContactName" name="txtContactName"  />-->
+                                    </div>
+                                 </div> 
+                            </div>
+                            <div class="lds-form--horizontal">
+                                    <aura:if isTrue="{!v.selectedValue == 'Templates'}">
+                                            <aura:if isTrue="{!v.selectedValue == 'Templates'}">
+                                                <div class="input__c slds-max-small-size--1-of-1 slds-size--1-of-1">
+                                                    <c:Lookup aura:id="lkpTemplateName" objectAPIName="vlocity_cmt__VlocityUITemplate__c" iconName="standard:template" selectedRecord="{!v.sObjectTemplateName}"
+                                                        label="Template Name" />
+                                                </div>
+                                            </aura:if>
+                                    <aura:set attribute="else">
+                                        <label class="slds-form-element__label" for="text-input-01">Field Name</label>
+                                    	    <div class="slds-form-element__control"> 
+                                              <ui:inputText aura:id="txtFieldNameId" value="{!v.txtFiledName}" class="slds-input" placeholder="Text to search" />
+                                            </div>
+                                    </aura:set>
+                                    </aura:if>
+
+                             </div> 
+                        </div>
+
+                      <aura:set attribute="else">
+                        <div class="slds-col slds-size--1-of-1">     
+                            <div class="lds-form--horizontal">
+                                <label class="slds-form-element__label" for="text-input-01">Text to search</label>
+                                <div class="slds-form-element__control"> 
+                                  <ui:inputText aura:id="txtContactName" value="{!v.txtContact}" class="slds-input" placeholder="Text to search" />
+                                  <!--<lightning:input type="text" id="txtContactName" name="txtContactName"  />-->
+                                </div>
+                             </div> 
+                        </div>
+                      </aura:set>
+                    </aura:if>
+                    <br></br>
+                    <div class="slds-col slds-size--1-of-1 slds-p-top--small"> 
+                         <button class="slds-button slds-theme--alt-inverse slds-p-left--medium slds-p-right--medium" onclick="{!c.search}">Search</button>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    
+        <!-- the container element determine the height of the datatable --> 
+        <div class="slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1 slds-p-bottom--small slds-p-left--medium">
+            <aura:if isTrue="{!v.condition}">
+                <div style="height: 300px">
+                    <lightning:datatable
+                            keyField="id"
+                            data="{! v.rows }"
+                            columns="{! v.columns }"
+                            hideCheckboxColumn="true"/>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.hasError}">
+                <p>{!v.msjError}</p>
+            </aura:if>
+        </div>
+    </div>
+</aura:component>
